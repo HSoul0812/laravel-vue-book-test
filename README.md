@@ -61,6 +61,7 @@ Soft deletes a book
 
 I used laravel 9 in backend and used vue 3 in frontend.
 please rename .env.example file to .env for Environment variables.
+You can run project following commands
 
 ## Backend
 
