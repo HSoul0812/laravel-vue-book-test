@@ -59,19 +59,32 @@ Soft deletes a book
 
 ## Setup Feature
 
-I used laravel 9 in backend and used vue 3 in frontend.
-please rename .env.example file to .env for Environment variables.
+I used Laravel 9 for backend and used Vue 3 for frontend.
+
+Please rename .env.example file to .env for Environment variables.
+
+You can run project following commands.
 
 ## Backend
 
+```
 composer install
+```
 
+```
 php artisan migrate
+```
 
+```
 php artisan serve
+```
 
 ## Frontend
 
+```
 npm install
+```
 
+```
 npm run dev
+```
