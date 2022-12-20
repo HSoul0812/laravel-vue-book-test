@@ -58,7 +58,7 @@ class LibraryController extends Controller
         try {
             $item = $this->model->with('books')->FindOrFail($id);
             $item->update($request->all());
-            return response(['libraries' => $items, 'status' => 200]);
+            return response(['libraries' => $item, 'status' => 200]);
         } catch (ModelNotFoundException $e) {
             return response(['message' => 'Item Not Found!', 'status' => 404]);
         }
