@@ -32,11 +32,13 @@ class LibraryTest extends TestCase
                 '*' => ['name', 'address'],
             ],
         ]);
+        return $response->json()['libraries'][0]['id'];
     }
 
     public function test_update()
     {
-        $response = $this->putJson('/api/libraries/1', [
+        $library_id = $this->test_post();
+        $response = $this->putJson('/api/libraries/' . $library_id, [
             'name' => 'HuangGuo library',
             'address' => 'HuangGuo street Ave 40',
         ]);

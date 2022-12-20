@@ -19,6 +19,7 @@ class AuthorTest extends TestCase
 
         $response->assertStatus(200);
     }
+
     public function test_post()
     {
         $response = $this->postJson('/api/authors', [
@@ -32,10 +33,13 @@ class AuthorTest extends TestCase
                 '*' => ['name', 'birthday', 'genre'],
             ],
         ]);
+        return $response->json()['authors'][0]['id'];
     }
+
     public function test_update()
     {
-        $response = $this->putJson('/api/authors/1', [
+        $author_id = $this->test_post();
+        $response = $this->putJson('/api/authors/' . $author_id, [
             'name' => 'Sally123',
             'birthday' => '1999.1.1',
             'genre' => 'Horor',
