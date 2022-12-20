@@ -79,6 +79,12 @@ php artisan migrate
 php artisan serve
 ```
 
+You can run unit test following command.
+
+```
+php artisan test
+```
+
 ## Frontend
 
 ```
