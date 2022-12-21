@@ -33,6 +33,7 @@ import Service from '../service/Service';
 import BookModal from './BookModal.vue';
 import AuthorModal from './AuthorModal.vue';
 import LibraryModal from './LibraryModal.vue';
+import { formatDate } from '../utils/common';
 
 export default {
 	name: 'App',
@@ -99,7 +100,7 @@ export default {
 		},
 
 		async addAuthor(item) {
-			this.authors = await Service.addAuthor(item);
+			this.authors = await Service.addAuthor({ ...item, authorBirth: formatDate(item.authorBirth) });
 		},
 
 		async addBook(item) {

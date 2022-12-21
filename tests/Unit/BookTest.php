@@ -18,7 +18,7 @@ class BookTest extends TestCase
     {
         $authorsData = $this->postJson('/api/authors', [
             'name' => 'Sally',
-            'birthday' => '2000.1.1',
+            'birthday' => '2000-01-01',
             'genre' => 'Action',
         ]);
 
@@ -52,7 +52,11 @@ class BookTest extends TestCase
                 '*' => ['name', 'year', 'author_id', 'libraries'],
             ],
         ]);
-        return $response->json()['books'][0]['id'];
+        $result = (array) $response->json();
+        if ($result && count($result['books']) > 0) {
+            return $result['books'][0]['id'];
+        }
+        return null;
     }
 
     public function test_update()
@@ -61,7 +65,7 @@ class BookTest extends TestCase
         $book_id = $this->test_post();
 
         $response = $this->putJson('/api/books/' . $book_id, [
-            'name' => 'Kelly Life',
+            'name' => 'Kelly Life-----------test',
             'year' => 2002,
             'author_id' => $existData[0],
             'libraries' => [$existData[1]],
@@ -70,6 +74,7 @@ class BookTest extends TestCase
         $response->assertStatus(200)->assertJsonStructure([
             'books' => ['*' => ['name', 'year', 'author_id', 'libraries']],
         ]);
+        $response->assertSeeTextInOrder(['Kelly Life-----------test', 2002]);
     }
 
     public function test_delete()

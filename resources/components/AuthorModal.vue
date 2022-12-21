@@ -5,8 +5,9 @@
       <div v-for="(item, index) in headers" :key="item.text">
         <div class="d-flex align-items-center justify-content-between my-2">
           <div class="w-50">{{ item.text }} : </div>
-          <b-form-input class="w-50" v-model="currentItem[`${item.value}`]" className='w-50 mx-auto'
-            :disabled="index > 2" data-test="authorTest" required></b-form-input>
+          <Datepicker v-if="index == 2" v-model="currentItem[`${item.value}`]" class="w-100" />
+          <b-form-input v-else class="w-50" v-model="currentItem[`${item.value}`]" className='w-50 mx-auto'
+            data-test="authorTest" required></b-form-input>
         </div>
       </div>
     </form>
@@ -14,14 +15,19 @@
 </template>
 
 <script>
+import Datepicker from 'vue3-datepicker';
+
 export default {
   name: 'AuthorModal',
+
   props: {
     show: [Boolean],
   },
+
   data: function () {
     return {
       currentItem: {},
+      date: new Date(),
       headers: [
         { text: 'Author Name', value: "authorName" },
         { text: 'Genre', value: "authorGenre" },
@@ -30,12 +36,16 @@ export default {
     }
   },
 
+  components: {
+    Datepicker,
+  },
+
   methods: {
     async addAuthor() {
       this.$emit('addItem', this.currentItem);
     },
-
   },
+
   computed: {
     getShow: {
       get() {

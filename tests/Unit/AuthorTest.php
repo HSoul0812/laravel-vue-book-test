@@ -24,7 +24,7 @@ class AuthorTest extends TestCase
     {
         $response = $this->postJson('/api/authors', [
             'name' => 'Sally',
-            'birthday' => '2000.1.1',
+            'birthday' => '2000-01-01',
             'genre' => 'Action',
         ]);
 
@@ -33,7 +33,10 @@ class AuthorTest extends TestCase
                 '*' => ['name', 'birthday', 'genre'],
             ],
         ]);
-        return $response->json()['authors'][0]['id'];
+        $result = (array) $response->json();
+        if ($result && count($result['authors']) > 0) {
+            return $result['authors'][0]['id'];
+        }
     }
 
     public function test_update()
@@ -41,13 +44,15 @@ class AuthorTest extends TestCase
         $author_id = $this->test_post();
         $response = $this->putJson('/api/authors/' . $author_id, [
             'name' => 'Sally123',
-            'birthday' => '1999.1.1',
+            'birthday' => '1999-01-01',
             'genre' => 'Horor',
         ]);
 
         $response->assertStatus(200)->assertJsonStructure([
             'authors' => ['name', 'birthday', 'genre'],
         ]);
+
+        $response->assertSeeTextInOrder(['Sally123', '1999-01-01', 'Horor']);
     }
 
     public function test_delete()

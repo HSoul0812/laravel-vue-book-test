@@ -26,7 +26,7 @@ class AuthorController extends Controller
     {
         $request->validate([
             'name' => 'required|min:3',
-            'birthday' => 'required',
+            'birthday' => 'required|date_format:Y-m-d',
             'genre' => 'required',
         ]);
         $data = $request->all();

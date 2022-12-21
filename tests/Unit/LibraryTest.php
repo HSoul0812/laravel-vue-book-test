@@ -32,7 +32,11 @@ class LibraryTest extends TestCase
                 '*' => ['name', 'address'],
             ],
         ]);
-        return $response->json()['libraries'][0]['id'];
+        $result = (array) $response->json();
+        if ($result && count($result['libraries']) > 0) {
+            return $result['libraries'][0]['id'];
+        }
+        return null;
     }
 
     public function test_update()
@@ -44,6 +48,11 @@ class LibraryTest extends TestCase
         ]);
         $response->assertStatus(200)->assertJsonStructure([
             'libraries' => ['name', 'address'],
+        ]);
+
+        $response->assertSeeTextInOrder([
+            'HuangGuo library',
+            'HuangGuo street Ave 40',
         ]);
     }
 
