@@ -63,7 +63,7 @@ I used Laravel 9 for backend and used Vue 3 for frontend.
 
 Please rename .env.example file to .env for Environment variables.
 
-You can run project following commands.
+You can run project following commands and please make sure start Apache and MySQL environment.
 
 ## Backend
 
