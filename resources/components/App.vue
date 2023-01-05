@@ -10,9 +10,9 @@
 				Library</b-button>
 		</div>
 	</div>
-	<EasyDataTable :headers="headers" :items="books" class="px-5" data-test="testTable">
+	<EasyDataTable :headers="headers" :items="books" class="px-5">
 		<template #item-operation="item">
-			<div class="operation-wrapper">
+			<div v-if="!item.duplicated" class="operation-wrapper">
 				<img src="../assets/image/delete.png" class="operation-icon" @click="deleteItem(item)" />
 				<img src="../assets/image/edit.png" class="operation-icon" @click="onEdit(item)" />
 			</div>
@@ -20,11 +20,13 @@
 	</EasyDataTable>
 
 	<book-modal :show="bookModalShow" :currentItem="currentItem" :authors="authors" :libraries="libraries"
-		@addItem="addBook" @updateItem="updateBook" @updateShow="(v) => bookModalShow = v"></book-modal>
+		:headers="headers" @addItem="addBook" @updateItem="updateBook"
+		@updateShow="(v) => bookModalShow = v"></book-modal>
 
-	<author-modal :show="authorModalShow" @addItem="addAuthor" @updateShow="(v) => authorModalShow = v"></author-modal>
+	<author-modal :show="authorModalShow" :currentItem="currentItem" @addItem="addAuthor"
+		@updateShow="(v) => authorModalShow = v"></author-modal>
 
-	<library-modal :show="libraryModalShow" @addItem="addLibrary"
+	<library-modal :show="libraryModalShow" @addItem="addLibrary" :currentItem="currentItem" :books="bookList"
 		@updateShow="(v) => libraryModalShow = v"></library-modal>
 </template>
 <script>
@@ -48,6 +50,7 @@ export default {
 			authors: [],
 			libraries: [],
 			currentItem: {},
+			bookList: [],
 			bookModalShow: false,
 			authorModalShow: false,
 			libraryModalShow: false,
@@ -87,72 +90,40 @@ export default {
 
 		async loadItems() {
 			this.books = await Service.loadBooks();
+			this.bookList = Service.bookList;
 			this.authors = await Service.loadAuthors();
 			this.libraries = await Service.loadLibraries();
 		},
 
 		async deleteItem(item) {
 			this.books = await Service.deleteBook(item.id);
+			this.bookList = Service.bookList;
 		},
 
 		async addLibrary(item) {
+			this.libraryModalShow = !this.libraryModalShow;
 			this.libraries = await Service.addLibrary(item);
+			this.books = await Service.loadBooks();
+			this.bookList = Service.bookList;
 		},
 
 		async addAuthor(item) {
+			this.authorModalShow = !this.authorModalShow;
 			this.authors = await Service.addAuthor({ ...item, authorBirth: formatDate(item.authorBirth) });
 		},
 
 		async addBook(item) {
+			this.bookModalShow = !this.bookModalShow;
 			this.books = await Service.addBook(item);
+			this.bookList = Service.bookList;
 		},
 
 		async updateBook(item) {
+			this.bookModalShow = !this.bookModalShow;
 			this.books = await Service.updateBook(item, item.id);
+			this.bookList = Service.bookList;
 		},
 	},
-
-	computed: {
-		authorOptions() {
-			return this.authors.map(author => ({ value: author.id, text: author.name }))
-		},
-
-		authorChange: {
-			get() {
-				return this.currentItem.author_id;
-			},
-			set(newValue) {
-				const newAuthor = this.authors.find(author => author.id === newValue);
-
-				if (newAuthor) {
-					this.currentItem.author_id = newValue;
-					this.currentItem.authorName = newAuthor.name;
-					this.currentItem.authorGenre = newAuthor.genre;
-					this.currentItem.authorBirth = newAuthor.birthday;
-				}
-			}
-		},
-
-		libraryOptions() {
-			return this.libraries.map(library => ({ value: library.id, text: library.name }))
-		},
-
-		libraryChange: {
-			get() {
-				return this.currentItem.libraryId;
-			},
-			set(newValue) {
-				const newLibrary = this.libraries.find(library => library.id === newValue);
-
-				if (newLibrary) {
-					this.currentItem.libraryId = newValue;
-					this.currentItem.libraryName = newLibrary.name;
-					this.currentItem.libraryAddress = newLibrary.address;
-				}
-			}
-		},
-	},
-
 	created() {
 		this.loadItems();
 	}

@@ -9,5 +9,6 @@ class BookLibrary extends Pivot
 {
     use HasFactory;
 
+    protected $fillable = ['book_id', 'library_id', 'created_at'];
     protected $table = 'book_libraries';
 }

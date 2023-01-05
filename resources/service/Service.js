@@ -2,11 +2,14 @@ import axios from 'axios'
 import { formatBook } from '../utils/common'
 
 class Service {
-  constructor() {}
+  constructor() {
+    this.bookList = []
+  }
 
   async loadBooks() {
     try {
       const { books } = await axios.get(`api/books`).then((res) => res.data)
+      this.bookList = books
       return formatBook(books)
     } catch (e) {
       console.error(e)
@@ -24,12 +27,13 @@ class Service {
         name: data.name,
         year: parseInt(data.year),
         author_id: data.author_id,
-        libraries: [data.libraryId],
+        libraries: data.libraries.map((library) => library.id),
       }
 
       const { books } = await axios
         .post(`api/books`, { ...payload })
         .then((res) => res.data)
+      this.bookList = books
       return formatBook(books)
     } catch (e) {
       console.error(e)
@@ -47,7 +51,7 @@ class Service {
         name: data.name,
         year: parseInt(data.year),
         author_id: data.author_id,
-        libraries: [data.libraryId],
+        libraries: data.libraries.map((library) => library.id),
       }
 
       const { books } = await axios
@@ -55,7 +59,7 @@ class Service {
           ...payload,
         })
         .then((res) => res.data)
-
+      this.bookList = books
       return formatBook(books)
     } catch (e) {
       console.error(e)
@@ -72,6 +76,7 @@ class Service {
       const { books } = await axios
         .delete(`api/books/${id}`)
         .then((res) => res.data)
+      this.bookList = books
       return formatBook(books)
     } catch (e) {
       console.error(e)
@@ -137,6 +142,7 @@ class Service {
       const payload = {
         name: data.libraryName,
         address: data.libraryAddress,
+        books: data.books,
       }
       const result = await axios
         .post(`api/libraries`, { ...payload })

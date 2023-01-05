@@ -25,9 +25,13 @@ class LibraryController extends Controller
         $request->validate([
             'name' => 'required|min:3',
             'address' => 'required',
+            'books' => 'array',
+            'books.*' => 'exists:books,id',
         ]);
 
-        $this->model->create($request->all());
+        $item = $this->model->create($request->all());
+        $books = $request->get('books');
+        $item->books()->sync($books);
         return $this->index();
     }
 
@@ -56,8 +60,16 @@ class LibraryController extends Controller
     public function update($id, Request $request)
     {
         try {
+            $request->validate([
+                'name' => 'required|min:3',
+                'address' => 'required',
+                'books' => 'array',
+                'books.*' => 'exists:books,id',
+            ]);
             $item = $this->model->with('books')->FindOrFail($id);
             $item->update($request->all());
+            $books = $request->get('books');
+            $item->books()->sync($books);
             return response(['libraries' => $item, 'status' => 200]);
         } catch (ModelNotFoundException $e) {
             return response(['message' => 'Item Not Found!', 'status' => 404]);

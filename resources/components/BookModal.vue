@@ -1,16 +1,23 @@
 <template>
-  <b-modal v-model="getShow" @ok="onOk">
-    <h4 class="text-center">Edit Book</h4>
-    <form ref="form" @submit.stop.prevent class="px-5">
+  <b-modal v-model="getShow" @ok="handleOk">
+    <h4 class="text-center">{{ handleTitle }}</h4>
+    <form ref="form" @submit.stop.prevent @submit="handleSubmit" class="px-5">
       <div v-for="(item, index) in headers" :key="item.text">
-        <div class="d-flex align-items-center justify-content-between my-2" v-if="index != headers.length - 1">
+        <div class="d-flex align-items-center justify-content-between my-2" v-if="index < headers.length - 2">
           <div class="w-50">{{ item.text }} : </div>
           <b-form-select v-if="item.text === 'Author Name'" v-model="authorChange" class="w-50"
-            :options="authorOptions"></b-form-select>
-          <b-form-select v-else-if="item.text === 'Library Name'" v-model="libraryChange" class="w-50"
-            :options="libraryOptions"></b-form-select>
-          <b-form-input v-else class="w-50 mx-auto" v-model="currentItem[`${item.value}`]" data-test="bookTest"
-            :disabled="index > 2" required></b-form-input>
+            @input="checkFormValidity" :options="authorOptions"></b-form-select>
+          <VueMultiselect v-else-if="item.text === 'Library Name'" v-model="libraryValue" :options="libraryOptions"
+            :multiple="true" :clear-on-select="false" :preserve-search="true" label="text" track-by="text">
+          </VueMultiselect>
+          <input v-else-if="item.text === 'Year'" class="w-50 mx-auto form-control"
+            @input="(e) => { onKeydown(e.target); checkFormValidity() }" v-model="currentItem[`${item.value}`]"
+            placeholder="1902" type="number" required />
+          <input v-else class="w-50 mx-auto form-control" v-model="currentItem[`${item.value}`]" :disabled="index > 2"
+            @input="checkFormValidity" required />
+        </div>
+        <div v-if="index < 3 && errors[`${item.value}`] == false" class="d-block invalid-feedback inputError">
+          Field is Required
         </div>
       </div>
     </form>
@@ -18,7 +25,22 @@
 </template>
 
 <script>
+import VueMultiselect from 'vue-multiselect'
+
 export default {
+  components: {
+    VueMultiselect,
+  },
+  data() {
+    return {
+      libraryValue: [],
+      errors: {
+        "name": null,
+        "year": null,
+        "authorName": null,
+      }
+    }
+  },
   name: 'BookModal',
   props: {
     show: {
@@ -37,29 +59,60 @@ export default {
       type: Array,
       default: []
     },
-  },
-  data: function () {
-    return {
-      headers: [
-        { text: 'Book Name', value: "name" },
-        { text: 'Year', value: "year" },
-        { text: 'Author Name', value: "authorName" },
-        { text: 'Genre', value: "authorGenre" },
-        { text: 'Library Name', value: "libraryName" },
-        { text: 'Address', value: "libraryAddress" },
-        { text: "Operation", value: "operation" },
-      ],
+    headers: {
+      typs: Array,
+      default: []
     }
   },
 
-  methods: {
-    onOk() {
-      if (!this.currentItem.id) {
-        this.$emit('addItem', this.currentItem)
+  watch: {
+    currentItem(current) {
+      if (Object.keys(current).length) {
+        this.libraryValue = current.libraries.map(library => ({ value: library.id, text: library.name }))
       } else {
-        this.$emit('updateItem', this.currentItem)
+        this.libraryValue = []
+        this.errors = {
+          "name": null,
+          "year": null,
+          "authorName": null,
+        }
       }
     }
+  },
+  methods: {
+    checkFormValidity() {
+      this.errors.name = !this.currentItem['name'] ? false : true
+      this.errors.year = !this.currentItem['year'] ? false : true
+      this.errors.authorName = !this.currentItem['authorName'] ? false : true
+      if (this.currentItem.name && this.currentItem.year && this.currentItem.authorName) return true
+      return false
+    },
+
+    handleOk(bvModalEvent) {
+      bvModalEvent.preventDefault()
+      this.handleSubmit()
+    },
+
+    async handleSubmit() {
+      if (!this.checkFormValidity()) {
+        return
+      }
+      const selectedLibraries = this.libraries.filter(library => this.libraryValue.map(e => e.value).includes(library.id))
+      this.currentItem.libraries = selectedLibraries
+      this.$nextTick(() => {
+        if (!this.currentItem.id) {
+          this.$emit('addItem', this.currentItem)
+        } else {
+          this.$emit('updateItem', this.currentItem)
+        }
+      })
+    },
+
+    onKeydown(target) {
+      target.value = target.value.substr(0, 4)
+      this.currentItem['year'] = target.value
+    },
+
   },
 
   computed: {
@@ -86,21 +139,6 @@ export default {
       return this.libraries?.map(library => ({ value: library.id, text: library.name }))
     },
 
-    libraryChange: {
-      get() {
-        return this.currentItem?.libraryId;
-      },
-
-      set(newValue) {
-        const newLibrary = this.libraries?.find(library => library.id === newValue);
-        if (newLibrary) {
-          this.currentItem.libraryId = newValue;
-          this.currentItem.libraryName = newLibrary.name;
-          this.currentItem.libraryAddress = newLibrary.address;
-        }
-      }
-    },
-
     getShow: {
       get() {
         return this.show
@@ -110,6 +148,10 @@ export default {
         this.$emit('updateShow', value)
       }
     },
+
+    handleTitle() {
+      return Object.keys(this.currentItem).length ? 'Edit Book' : 'Add Book'
+    }
   }
 }
 </script>

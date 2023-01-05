@@ -2,3 +2,7 @@
   width: 20px;
   cursor: pointer;
 }
+
+.inputError {
+  margin-left: 50%;
+}

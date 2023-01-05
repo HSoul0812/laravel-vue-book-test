@@ -20,12 +20,13 @@
     "@testing-library/vue": "^6.6.1",
     "@vitejs/plugin-vue": "^4.0.0",
     "@vue/test-utils": "^2.2.6",
+    "@vuepic/vue-datepicker": "^3.6.4",
     "bootstrap": "^5.2.3",
     "bootstrap-vue-3": "^0.4.15",
     "jest-transform-stub": "^2.0.0",
     "vue": "^3.2.45",
     "vue-jest": "^5.0.0-alpha.10",
-    "vue3-datepicker": "^0.3.4",
+    "vue-multiselect": "^3.0.0-alpha.2",
     "vue3-easy-data-table": "^1.5.24"
   },
   "jest": {
