@@ -55,6 +55,17 @@ export default {
     Datepicker,
   },
 
+  watch: {
+    currentItem(current) {
+      if (!Object.keys(current).length) {
+        this.errors = {
+          "authorName": null,
+          "authorGenre": null,
+          "authorBirth": null
+        }
+      }
+    }
+  },
   methods: {
     checkFormValidity() {
       this.errors.authorName = !this.currentItem['authorName'] ? false : true
